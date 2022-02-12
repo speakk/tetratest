@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::Arc;
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
 use tetra::graphics::{self, Color, Texture};
 //use tetra::math::Vec2;
@@ -10,7 +11,7 @@ mod in_game;
 type Textures = HashMap<crate::EntityType, Texture>;
 
 pub struct Assets {
-    textures: Textures,
+    pub textures: Textures,
 }
 
 trait Scene {
@@ -18,6 +19,7 @@ trait Scene {
     fn draw(&mut self, ctx: &mut Context, assets: &Assets) -> tetra::Result<Transition>;
 }
 
+#[allow(dead_code)]
 enum Transition {
     None,
     Push(Box<dyn Scene>),
@@ -26,13 +28,11 @@ enum Transition {
 
 pub struct GameState {
     scenes: Vec<Box<dyn Scene>>,
-    assets: Assets,
+    assets: Arc<Assets>,
     scaler: ScreenScaler,
-    //grid: Vec<map::Coordinate>,
-    //world: World,
 }
 
-impl GameState {
+impl<'a> GameState {
     pub fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         //let mut grid = map::create_grid(8, map::MapShape::Hexagonal);
         //grid.sort_by(|a, b| b.q.cmp(&a.q));
@@ -50,7 +50,9 @@ impl GameState {
             ]),
         };
 
-        let initial_scene = in_game::InGameScene::new(ctx, &assets);
+        let assets = Arc::new(assets);
+
+        let initial_scene = in_game::InGameScene::new(ctx, assets.clone());
 
         Ok(GameState {
             scenes: vec![Box::new(initial_scene)],

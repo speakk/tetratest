@@ -10,7 +10,6 @@ use tetra::{Context, ContextBuilder, Event, State};
 #[macro_use]
 
 mod features;
-use features::map;
 
 pub const WIDTH: i32 = 640;
 pub const HEIGHT: i32 = 480;
