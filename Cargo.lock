@@ -1232,6 +1232,7 @@ name = "tetratest"
 version = "0.1.0"
 dependencies = [
  "hecs",
+ "itertools",
  "lazy_static",
  "pathfinding",
  "tetra",

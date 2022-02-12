@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::sync::Arc;
 
 use hecs::World;
@@ -18,6 +19,11 @@ pub fn sprite_draw_system(ctx: &mut Context, world: &mut World, assets: Arc<Asse
     for (_id, (sprite, position, coordinate)) in world
         .query::<(&Sprite, &Position, Option<&Coordinate>)>()
         .into_iter()
+        // TODO: Err lol yeah. Update Position based on Coordinate, then here just sort by
+        // position.y
+        .sorted_by(|(_, (_, _, coord_a)), (_, (_, _, coord_b))| {
+            coord_b.unwrap().q.cmp(&coord_a.unwrap().q)
+        })
     {
         let position = {
             if let Some(coordinate) = coordinate {
