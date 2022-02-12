@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
-use tetra::graphics::{self, Color, Texture};
+use tetra::graphics::{self, Camera, Color, Texture};
 //use tetra::math::Vec2;
 use tetra::window;
 use tetra::{Context, Event, State};
+
+use crate::{HEIGHT, WIDTH};
 
 mod in_game;
 
@@ -30,6 +32,7 @@ pub struct GameState {
     scenes: Vec<Box<dyn Scene>>,
     assets: Arc<Assets>,
     scaler: ScreenScaler,
+    camera: Camera,
 }
 
 impl<'a> GameState {
@@ -62,6 +65,7 @@ impl<'a> GameState {
                 crate::HEIGHT,
                 ScalingMode::ShowAllPixelPerfect,
             )?,
+            camera: Camera::new(WIDTH as f32, HEIGHT as f32),
             assets,
         })
     }
@@ -87,6 +91,9 @@ impl State for GameState {
 
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
+        graphics::clear(ctx, Color::BLACK);
+
+        graphics::set_transform_matrix(ctx, self.camera.as_matrix());
 
         match self.scenes.last_mut() {
             Some(active_scene) => match active_scene.draw(ctx, &self.assets)? {
@@ -101,7 +108,10 @@ impl State for GameState {
             None => window::quit(ctx),
         }
 
+        graphics::reset_transform_matrix(ctx);
+
         graphics::reset_canvas(ctx);
+
         graphics::clear(ctx, Color::BLACK);
 
         self.scaler.draw(ctx);
