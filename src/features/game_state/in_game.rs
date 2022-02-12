@@ -8,6 +8,7 @@ use tetra::{
 };
 
 use crate::features::{
+    map::{self, Coordinate},
     rendering::{sprite_draw_system, Sprite},
     shared::Position,
 };
@@ -17,13 +18,12 @@ use super::Scene;
 use super::Transition;
 
 type SystemType = fn(&mut Context, &mut World, Arc<Assets>);
-//type SystemType = Box<dyn Fn() -> ()>;
-//type SystemType = Fn() -> ();
 
 pub struct InGameScene {
     world: World,
     assets: Arc<Assets>,
     draw_systems: Vec<SystemType>,
+    map: Vec<Coordinate>,
 }
 
 impl InGameScene {
@@ -32,17 +32,21 @@ impl InGameScene {
             world: World::new(),
             assets,
             draw_systems: vec![],
+            map: map::create_grid(8, map::MapShape::Hexagonal),
         };
 
         scene.add_system(sprite_draw_system);
 
-        scene.world.spawn((
-            Sprite {
-                texture: crate::EntityType::Hex,
-                origin: Vec2::new(16., 16.),
-            },
-            Position(Vec2::new(100., 100.)),
-        ));
+        for hex in scene.map.iter() {
+            scene.world.spawn((
+                Sprite {
+                    texture: crate::EntityType::Hex,
+                    origin: Vec2::new(16., 16.),
+                },
+                Position(Vec2::new(100., 100.)),
+                hex.clone(),
+            ));
+        }
 
         scene
     }

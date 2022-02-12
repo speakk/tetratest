@@ -50,9 +50,9 @@ lazy_static::lazy_static! {
 //     ((a.q - b.q).abs() + (a.q + a.r - b.q - b.r).abs() + (a.r - b.r).abs()) / 2
 // }
 
-pub fn pointy_hex_to_pixel(q: i32, r: i32) -> Vec2<f32> {
-    let q = q as f32;
-    let r = r as f32;
+pub fn pointy_hex_to_pixel(coordinate: Coordinate) -> Vec2<f32> {
+    let q = coordinate.q as f32;
+    let r = coordinate.r as f32;
     let x = (POINTY_HEX_MATRIX.f0 * q + POINTY_HEX_MATRIX.f1 * r) * HEX_LAYOUT_SIZE_X;
     let y = (POINTY_HEX_MATRIX.f2 * q + POINTY_HEX_MATRIX.f3 * r) * HEX_LAYOUT_SIZE_Y;
 

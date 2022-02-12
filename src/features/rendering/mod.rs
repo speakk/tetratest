@@ -3,7 +3,11 @@ use std::sync::Arc;
 use hecs::World;
 use tetra::{graphics::DrawParams, math::Vec2, Context};
 
-use super::{game_state::Assets, shared::Position};
+use super::{
+    game_state::Assets,
+    map::{self, Coordinate},
+    shared::Position,
+};
 
 pub struct Sprite {
     pub texture: crate::EntityType,
@@ -11,14 +15,25 @@ pub struct Sprite {
 }
 
 pub fn sprite_draw_system(ctx: &mut Context, world: &mut World, assets: Arc<Assets>) {
-    for (_id, (sprite, position)) in world.query::<(&Sprite, &Position)>().into_iter() {
+    for (_id, (sprite, position, coordinate)) in world
+        .query::<(&Sprite, &Position, Option<&Coordinate>)>()
+        .into_iter()
+    {
+        let position = {
+            if let Some(coordinate) = coordinate {
+                map::pointy_hex_to_pixel(coordinate.clone())
+            } else {
+                position.0
+            }
+        };
+
         assets
             .textures
             .get(&sprite.texture)
             .expect("No texture found for sprite entity type")
             .draw(
                 ctx,
-                DrawParams::new().position(position.0).origin(sprite.origin),
+                DrawParams::new().position(position).origin(sprite.origin),
             );
     }
     //         self.textures.skelly.draw(
