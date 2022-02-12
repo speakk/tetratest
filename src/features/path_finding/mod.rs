@@ -1,7 +1,7 @@
-use crate::models::map::NEIGHBOR_DIRECTIONS;
+use crate::features::map::NEIGHBOR_DIRECTIONS;
 use pathfinding::prelude::bfs;
 
-use super::Coordinate;
+use crate::features::map::Coordinate;
 
 impl Coordinate {
     fn successors(

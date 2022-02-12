@@ -1,4 +1,3 @@
-use models::Coordinate;
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
 use tetra::graphics::{self, Color, DrawParams, Texture};
 use tetra::math::Vec2;
@@ -6,7 +5,8 @@ use tetra::{Context, ContextBuilder, Event, State};
 
 #[macro_use]
 
-mod models;
+mod features;
+use features::map;
 
 const WIDTH: i32 = 640;
 const HEIGHT: i32 = 480;
@@ -16,18 +16,18 @@ struct Textures {
     hex: Texture,
 }
 
-struct GameState {
+struct InGame {
     textures: Textures,
     scaler: ScreenScaler,
-    grid: Vec<Coordinate>,
+    grid: Vec<map::Coordinate>,
 }
 
-impl GameState {
-    fn new(ctx: &mut Context) -> tetra::Result<GameState> {
-        let mut grid = models::create_grid(8, models::MapShape::Hexagonal);
+impl InGame {
+    fn new(ctx: &mut Context) -> tetra::Result<InGame> {
+        let mut grid = map::create_grid(8, map::MapShape::Hexagonal);
         grid.sort_by(|a, b| b.q.cmp(&a.q));
 
-        Ok(GameState {
+        Ok(InGame {
             textures: Textures {
                 skelly: Texture::new(ctx, "./assets/sprites/skelly.png")?,
                 hex: Texture::new(ctx, "./assets/sprites/hexagon.png")?,
@@ -43,7 +43,7 @@ impl GameState {
     }
 }
 
-impl State for GameState {
+impl State for InGame {
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
         graphics::set_canvas(ctx, self.scaler.canvas());
         graphics::clear(ctx, Color::rgb(0.18, 0.13, 0.15));
@@ -61,7 +61,7 @@ impl State for GameState {
                 DrawParams::new()
                     .position(
                         Vec2::new(WIDTH as f32 / 2., HEIGHT as f32 / 2.)
-                            + models::map::pointy_hex_to_pixel(hex.q, hex.r),
+                            + map::pointy_hex_to_pixel(hex.q, hex.r),
                     )
                     .origin(Vec2::new(16., 16.)),
             );
@@ -88,5 +88,5 @@ fn main() -> tetra::Result {
         .quit_on_escape(true)
         .resizable(true)
         .build()?
-        .run(GameState::new)
+        .run(InGame::new)
 }
