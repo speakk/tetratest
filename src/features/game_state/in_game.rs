@@ -8,7 +8,7 @@ use tetra::{
 };
 
 use crate::features::{
-    map::{self, Coordinate},
+    map::{self, coordinate_to_position_system::coordinate_to_position_system, Coordinate},
     rendering::{sprite_draw_system, Sprite},
     shared::Position,
 };
@@ -22,6 +22,7 @@ type SystemType = fn(&mut Context, &mut World, Arc<Assets>);
 pub struct InGameScene {
     world: World,
     assets: Arc<Assets>,
+    update_systems: Vec<SystemType>,
     draw_systems: Vec<SystemType>,
     map: Vec<Coordinate>,
 }
@@ -31,11 +32,13 @@ impl InGameScene {
         let mut scene = InGameScene {
             world: World::new(),
             assets,
+            update_systems: vec![],
             draw_systems: vec![],
             map: map::create_grid(8, map::MapShape::Hexagonal),
         };
 
-        scene.add_system(sprite_draw_system);
+        scene.draw_systems.push(sprite_draw_system);
+        scene.update_systems.push(coordinate_to_position_system);
 
         for hex in scene.map.iter() {
             scene.world.spawn((
@@ -44,20 +47,19 @@ impl InGameScene {
                     origin: Vec2::new(16., 16.),
                 },
                 Position(Vec2::new(100., 100.)),
-                hex.clone(),
+                hex.clone() as Coordinate,
             ));
         }
 
         scene
     }
-
-    pub fn add_system(&mut self, system: SystemType) {
-        self.draw_systems.push(system);
-    }
 }
 
 impl Scene for InGameScene {
-    fn update(&mut self, _ctx: &mut Context, _assets: &Assets) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context, _assets: &Assets) -> tetra::Result<Transition> {
+        for system in self.update_systems.iter() {
+            system(ctx, &mut self.world, self.assets.clone());
+        }
         Ok(Transition::None)
     }
 
