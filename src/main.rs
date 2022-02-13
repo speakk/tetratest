@@ -18,9 +18,6 @@ thread_local!(pub static ASSET_MANAGER: RefCell<AssetManager> = RefCell::new(Ass
     textures: HashMap::new()
 }));
 
-//lazy_static! {
-//    static ref ASSET_MANAGER
-
 #[derive(Hash, Eq, PartialEq)]
 pub enum EntityType {
     Skelly,

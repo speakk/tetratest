@@ -1,9 +1,6 @@
-use std::sync::Arc;
-
 use hecs::World;
 use tetra::{
     graphics::{self, Camera, Color},
-    math::Vec2,
     Context,
 };
 
@@ -12,29 +9,25 @@ use crate::features::{
         self, coordinate_to_position_system::coordinate_to_position_system,
         map_click_handler::map_click_handler, Coordinate,
     },
-    rendering::{create_hex_entity, sprite_draw_system, Sprite},
-    shared::Position,
+    rendering::{create_hex_entity, sprite_draw_system},
 };
 
-use super::Assets;
 use super::Scene;
 use super::Transition;
 
-type SystemType = fn(&mut Context, &mut World, Arc<Assets>);
+type SystemType = fn(&mut Context, &mut World);
 
 pub struct InGameScene {
     world: World,
-    assets: Arc<Assets>,
     update_systems: Vec<SystemType>,
     draw_systems: Vec<SystemType>,
     map: Vec<Coordinate>,
 }
 
 impl InGameScene {
-    pub fn new(_: &mut Context, assets: Arc<Assets>) -> InGameScene {
+    pub fn new(_: &mut Context) -> InGameScene {
         let mut scene = InGameScene {
             world: World::new(),
-            assets,
             update_systems: vec![],
             draw_systems: vec![],
             map: map::create_grid(8, map::MapShape::Hexagonal),
@@ -62,18 +55,18 @@ impl InGameScene {
 }
 
 impl Scene for InGameScene {
-    fn update(&mut self, ctx: &mut Context, _assets: &Assets) -> tetra::Result<Transition> {
+    fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         for system in self.update_systems.iter() {
-            system(ctx, &mut self.world, self.assets.clone());
+            system(ctx, &mut self.world);
         }
         Ok(Transition::None)
     }
 
-    fn draw(&mut self, ctx: &mut Context, _assets: &Assets) -> tetra::Result<Transition> {
+    fn draw(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         graphics::clear(ctx, Color::rgb(0.094, 0.11, 0.16));
 
         for system in self.draw_systems.iter() {
-            system(ctx, &mut self.world, self.assets.clone());
+            system(ctx, &mut self.world);
         }
 
         Ok(Transition::None)

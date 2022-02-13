@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use std::sync::Arc;
 
 use hecs::World;
 use tetra::{
@@ -10,7 +9,7 @@ use tetra::{
 
 use crate::{EntityType, ASSET_MANAGER};
 
-use super::{game_state::Assets, map::Coordinate, shared::Position};
+use super::{map::Coordinate, shared::Position};
 
 pub fn create_hex_entity(coordinate: Coordinate) -> (Sprite, Position, Coordinate) {
     (
@@ -46,7 +45,7 @@ impl Sprite {
     }
 }
 
-pub fn sprite_draw_system(ctx: &mut Context, world: &mut World, assets: Arc<Assets>) {
+pub fn sprite_draw_system(ctx: &mut Context, world: &mut World) {
     for (_id, (sprite, position)) in world.query::<(&Sprite, &Position)>().into_iter().sorted_by(
         |(_, (_, a_pos)), (_, (_, b_pos))| {
             a_pos
@@ -57,13 +56,16 @@ pub fn sprite_draw_system(ctx: &mut Context, world: &mut World, assets: Arc<Asse
                 .then(a_pos.0.x.partial_cmp(&b_pos.0.x).unwrap())
         },
     ) {
-        assets
-            .textures
-            .get(&sprite.entity_type)
-            .expect("No texture found for sprite entity type")
-            .draw(
-                ctx,
-                DrawParams::new().position(position.0).origin(sprite.origin),
-            );
+        ASSET_MANAGER.with(|asset_manager| {
+            asset_manager
+                .borrow()
+                .textures
+                .get(&sprite.entity_type)
+                .expect("No texture found for sprite entity type")
+                .draw(
+                    ctx,
+                    DrawParams::new().position(position.0).origin(sprite.origin),
+                );
+        });
     }
 }
