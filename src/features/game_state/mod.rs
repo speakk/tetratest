@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
 use tetra::graphics::{self, Camera, Color, Texture};
 use tetra::input::MouseButton;
@@ -8,7 +9,7 @@ use tetra::{Context, Event, State};
 
 use crate::{ASSET_MANAGER, HEIGHT, WIDTH};
 
-mod in_game;
+pub mod in_game;
 
 trait Scene {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
@@ -31,8 +32,8 @@ enum Transition {
 
 pub struct GameState {
     scenes: Vec<Box<dyn Scene>>,
-    scaler: ScreenScaler,
-    camera: Camera,
+    scaler: Arc<Mutex<ScreenScaler>>,
+    camera: Arc<Camera>,
 }
 
 impl GameState {
@@ -50,17 +51,22 @@ impl GameState {
             ]);
         });
 
-        let initial_scene = in_game::InGameScene::new(ctx);
-
-        Ok(GameState {
-            scenes: vec![Box::new(initial_scene)],
-            scaler: ScreenScaler::with_window_size(
+        let camera = Arc::new(Camera::new(WIDTH as f32, HEIGHT as f32));
+        let scaler = Arc::new(Mutex::new(
+            ScreenScaler::with_window_size(
                 ctx,
                 crate::WIDTH,
                 crate::HEIGHT,
                 ScalingMode::ShowAllPixelPerfect,
-            )?,
-            camera: Camera::new(WIDTH as f32, HEIGHT as f32),
+            )
+            .unwrap(),
+        ));
+        let initial_scene = in_game::InGameScene::new(ctx, camera.clone(), scaler.clone());
+
+        Ok(GameState {
+            scenes: vec![Box::new(initial_scene)],
+            scaler: scaler.clone(),
+            camera: camera.clone(),
         })
     }
 }
@@ -84,7 +90,7 @@ impl State for GameState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result {
-        graphics::set_canvas(ctx, self.scaler.canvas());
+        graphics::set_canvas(ctx, self.scaler.lock().unwrap().canvas());
         graphics::clear(ctx, Color::BLACK);
 
         graphics::set_transform_matrix(ctx, self.camera.as_matrix());
@@ -108,14 +114,14 @@ impl State for GameState {
 
         graphics::clear(ctx, Color::BLACK);
 
-        self.scaler.draw(ctx);
+        self.scaler.lock().unwrap().draw(ctx);
 
         Ok(())
     }
 
     fn event(&mut self, ctx: &mut Context, event: Event) -> tetra::Result {
         if let Event::Resized { width, height } = event {
-            self.scaler.set_outer_size(width, height);
+            self.scaler.lock().unwrap().set_outer_size(width, height);
         }
 
         if let Event::MouseButtonPressed { button } = event {

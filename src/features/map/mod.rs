@@ -2,9 +2,10 @@ use std::cmp;
 use tetra::math::Vec2;
 
 pub mod coordinate_to_position_system;
+pub mod hex_hover_system;
 pub mod map_click_handler;
 
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Coordinate {
     pub q: i32,
     pub r: i32,

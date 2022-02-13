@@ -1,15 +1,14 @@
 use itertools::Itertools;
 
-use hecs::World;
 use tetra::{
     graphics::{Color, DrawParams},
-    math::Vec2,
+    math::{Lerp, Vec2, Vec4},
     Context,
 };
 
 use crate::{EntityType, ASSET_MANAGER};
 
-use super::{map::Coordinate, shared::Position};
+use super::{game_state::in_game::Resources, map::Coordinate, shared::Position};
 
 pub fn create_hex_entity(coordinate: Coordinate) -> (Sprite, Position, Coordinate) {
     (
@@ -23,6 +22,7 @@ pub struct Sprite {
     pub entity_type: crate::EntityType,
     pub origin: Vec2<f32>,
     pub color: Color,
+    pub original_color: Color,
 }
 
 impl Sprite {
@@ -40,12 +40,14 @@ impl Sprite {
                     texture.height() as f32 / 2.,
                 )),
                 color: color.unwrap_or(Color::WHITE),
+                original_color: color.unwrap_or(Color::WHITE),
             }
         })
     }
 }
 
-pub fn sprite_draw_system(ctx: &mut Context, world: &mut World) {
+pub fn sprite_draw_system(ctx: &mut Context, resources: &mut Resources) {
+    let world = &resources.world;
     for (_id, (sprite, position)) in world.query::<(&Sprite, &Position)>().into_iter().sorted_by(
         |(_, (_, a_pos)), (_, (_, b_pos))| {
             a_pos
@@ -64,8 +66,21 @@ pub fn sprite_draw_system(ctx: &mut Context, world: &mut World) {
                 .expect("No texture found for sprite entity type")
                 .draw(
                     ctx,
-                    DrawParams::new().position(position.0).origin(sprite.origin),
+                    DrawParams::new()
+                        .position(position.0)
+                        .origin(sprite.origin)
+                        .color(sprite.color),
                 );
         });
+    }
+}
+
+pub fn color_interpolate_system(_ctx: &mut Context, resources: &mut Resources) {
+    let world = &resources.world;
+    for (_, mut sprite) in world.query::<&mut Sprite>().iter() {
+        //sprite.color = sprite.color * (sprite.original_color * Color::rgb(0.6, 0.6, 0.6) + 0.4);
+        let vec1: Vec4<f32> = Vec4::from(sprite.color);
+        let vec2: Vec4<f32> = Vec4::from(sprite.original_color);
+        sprite.color = Color::from(Lerp::lerp(vec1, vec2, 0.10));
     }
 }
