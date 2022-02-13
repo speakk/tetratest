@@ -3,3 +3,4 @@ pub mod map;
 pub mod path_finding;
 pub mod rendering;
 pub mod shared;
+pub mod units;

@@ -2,14 +2,17 @@ use std::sync::Arc;
 
 use hecs::World;
 use tetra::{
-    graphics::{self, Color},
+    graphics::{self, Camera, Color},
     math::Vec2,
     Context,
 };
 
 use crate::features::{
-    map::{self, coordinate_to_position_system::coordinate_to_position_system, Coordinate},
-    rendering::{sprite_draw_system, Sprite},
+    map::{
+        self, coordinate_to_position_system::coordinate_to_position_system,
+        map_click_handler::map_click_handler, Coordinate,
+    },
+    rendering::{create_hex_entity, sprite_draw_system, Sprite},
     shared::Position,
 };
 
@@ -41,14 +44,17 @@ impl InGameScene {
         scene.update_systems.push(coordinate_to_position_system);
 
         for hex in scene.map.iter() {
-            scene.world.spawn((
-                Sprite {
-                    texture: crate::EntityType::Hex,
-                    origin: Vec2::new(16., 16.),
-                },
-                Position(Vec2::new(100., 100.)),
-                hex.clone() as Coordinate,
-            ));
+            // scene.world.spawn((
+            //     Sprite {
+            //         entity_type: crate::EntityType::Hex,
+            //         origin: Vec2::new(16., 16.),
+            //         color: Color::WHITE,
+            //     },
+            //     Position(Vec2::new(100., 100.)),
+            //     hex.clone() as Coordinate,
+            // ));
+
+            scene.world.spawn(create_hex_entity(hex.clone()));
         }
 
         scene
@@ -71,5 +77,14 @@ impl Scene for InGameScene {
         }
 
         Ok(Transition::None)
+    }
+
+    fn mouse_button_pressed(
+        &mut self,
+        ctx: &mut Context,
+        mouse_button: tetra::input::MouseButton,
+        camera: &Camera,
+    ) -> () {
+        map_click_handler(ctx, &mut self.world, mouse_button, camera);
     }
 }
