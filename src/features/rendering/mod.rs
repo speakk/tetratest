@@ -12,33 +12,49 @@ use super::{game_state::in_game::Resources, map::Coordinate, shared::Position};
 
 pub fn create_hex_entity(coordinate: Coordinate) -> (Sprite, Position, Coordinate) {
     (
-        Sprite::new(EntityType::Hex, None, None),
+        Sprite::new(EntityType::Hex, Some(Vec2::new(0.5, 0.35)), None),
         Position(Vec2::new(0., 0.)),
         coordinate,
     )
 }
 
+#[derive(Debug)]
+pub struct Origin {
+    pub relative: Vec2<f32>,
+    pub pixels: Vec2<f32>,
+}
+
 pub struct Sprite {
     pub entity_type: crate::EntityType,
-    pub origin: Vec2<f32>,
+    pub origin: Origin,
     pub color: Color,
     pub original_color: Color,
 }
 
 impl Sprite {
-    pub fn new(entity_type: EntityType, origin: Option<Vec2<f32>>, color: Option<Color>) -> Self {
+    pub fn new(
+        entity_type: EntityType,
+        origin_relative: Option<Vec2<f32>>,
+        color: Option<Color>,
+    ) -> Self {
         ASSET_MANAGER.with(|asset_manager| {
             let textures = &asset_manager.borrow().textures;
 
             let texture = textures
                 .get(&entity_type)
                 .expect("No texture found for sprite");
+
+            let origin_relative = origin_relative.unwrap_or(Vec2::new(0.5, 0.5));
+
             Sprite {
                 entity_type,
-                origin: origin.unwrap_or(Vec2::new(
-                    texture.width() as f32 / 2.,
-                    texture.height() as f32 / 2.,
-                )),
+                origin: Origin {
+                    relative: origin_relative,
+                    pixels: Vec2::new(
+                        texture.width() as f32 * origin_relative.x,
+                        texture.height() as f32 * origin_relative.y,
+                    ),
+                },
                 color: color.unwrap_or(Color::WHITE),
                 original_color: color.unwrap_or(Color::WHITE),
             }
@@ -68,7 +84,7 @@ pub fn sprite_draw_system(ctx: &mut Context, resources: &mut Resources) {
                     ctx,
                     DrawParams::new()
                         .position(position.0)
-                        .origin(sprite.origin)
+                        .origin(sprite.origin.pixels)
                         .color(sprite.color),
                 );
         });
