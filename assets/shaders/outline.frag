@@ -15,7 +15,7 @@ out vec4 o_color;
 //extern vec2 stepSize;
 
 //vec4 effect( vec4 col, Image texture, vec2 v_uv, vec2 screenPos )
-vec2 stepSize = vec2(0.035, 0.035);
+vec2 stepSize = vec2(0.030, 0.030);
 
 void main()
 {

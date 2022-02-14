@@ -8,7 +8,7 @@ use tetra::{
 
 use crate::{EntityType, ASSET_MANAGER};
 
-use super::{game_state::in_game::Resources, shared::Position, units::Selected};
+use super::{game_state::Resources, shared::Position, units::Selected};
 
 #[derive(Debug)]
 pub struct Origin {
@@ -30,7 +30,9 @@ impl Sprite {
         color: Option<Color>,
     ) -> Self {
         ASSET_MANAGER.with(|asset_manager| {
-            let textures = &asset_manager.borrow().textures;
+            let asset_manager = asset_manager.borrow();
+            //let textures = &asset_manager.borrow().unwrap().textures;
+            let textures = &asset_manager.as_ref().unwrap().textures;
 
             let texture = textures
                 .get(&entity_type)
@@ -68,12 +70,14 @@ pub fn sprite_draw_system(ctx: &mut Context, resources: &mut Resources) {
                 .then(a_pos.0.x.partial_cmp(&b_pos.0.x).unwrap())
         })
     {
-        if selected.is_some() {
-            graphics::set_shader(ctx, &resources.shaders.outline);
-        }
         ASSET_MANAGER.with(|asset_manager| {
+            let asset_manager = asset_manager.borrow();
+            if selected.is_some() {
+                graphics::set_shader(ctx, &asset_manager.as_ref().unwrap().shaders.outline);
+            }
             asset_manager
-                .borrow()
+                .as_ref()
+                .unwrap()
                 .textures
                 .get(&sprite.entity_type)
                 .expect("No texture found for sprite entity type")
@@ -84,10 +88,10 @@ pub fn sprite_draw_system(ctx: &mut Context, resources: &mut Resources) {
                         .origin(sprite.origin.pixels)
                         .color(sprite.color),
                 );
+            if selected.is_some() {
+                graphics::reset_shader(ctx);
+            }
         });
-        if selected.is_some() {
-            graphics::reset_shader(ctx);
-        }
     }
 }
 

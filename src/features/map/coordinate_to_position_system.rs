@@ -1,6 +1,6 @@
 use tetra::Context;
 
-use crate::features::{game_state::in_game::Resources, shared::Position};
+use crate::features::{game_state::Resources, shared::Position};
 
 use super::{pointy_hex_to_pixel, Coordinate};
 

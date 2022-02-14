@@ -22,23 +22,20 @@ pub struct Shaders {
     pub outline: Shader,
 }
 
-pub struct InGameScene {
+pub struct MainMenuScene {
     pub update_systems: Vec<SystemType>,
     pub draw_systems: Vec<SystemType>,
     pub map: Vec<Coordinate>,
     pub resources: Resources,
 }
 
-impl InGameScene {
+impl MainMenuScene {
     pub fn new(
         ctx: &mut Context,
         camera: Arc<Camera>,
         scaler: Arc<Mutex<ScreenScaler>>,
-    ) -> InGameScene {
-        let outline_shader = Shader::from_fragment_file(ctx, "assets/shaders/outline.frag")
-            .expect("Could not load outline shader");
-
-        let mut scene = InGameScene {
+    ) -> MainMenuScene {
+        let mut scene = MainMenuScene {
             resources: Resources {
                 world: World::new(),
                 camera,
@@ -71,7 +68,7 @@ impl InGameScene {
     }
 }
 
-impl Scene for InGameScene {
+impl Scene for MainMenuScene {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition> {
         for system in self.update_systems.iter() {
             system(ctx, &mut self.resources);

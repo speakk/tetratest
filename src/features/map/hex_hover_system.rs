@@ -1,6 +1,6 @@
 use tetra::{graphics::Color, Context};
 
-use crate::features::{game_state::in_game::Resources, rendering::Sprite};
+use crate::features::{game_state::Resources, rendering::Sprite};
 
 use super::{pixel_to_pointy_hex, Coordinate, Hex};
 

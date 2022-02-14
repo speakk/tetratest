@@ -1,7 +1,7 @@
 use tetra::{input::MouseButton, Context};
 
 use crate::features::{
-    game_state::in_game::Resources,
+    game_state::Resources,
     units::{Selected, Unit},
 };
 

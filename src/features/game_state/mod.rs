@@ -1,15 +1,19 @@
+use hecs::World;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
-use tetra::graphics::{self, Camera, Color, Texture};
+use tetra::graphics::{self, Camera, Color, Shader, Texture};
 use tetra::input::MouseButton;
 //use tetra::math::Vec2;
 use tetra::window;
 use tetra::{Context, Event, State};
 
-use crate::{ASSET_MANAGER, HEIGHT, WIDTH};
+use crate::{AssetManager, Shaders, ASSET_MANAGER, HEIGHT, WIDTH};
+
+use super::map::Coordinate;
 
 pub mod in_game;
+pub mod main_menu;
 
 trait Scene {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
@@ -24,6 +28,19 @@ enum Transition {
     Pop,
 }
 
+pub struct Resources {
+    pub world: World,
+    pub camera: Arc<Camera>,
+    pub scaler: Arc<Mutex<ScreenScaler>>,
+    pub last_hovered_hex: Option<Coordinate>,
+}
+
+pub type SystemType = fn(&mut Context, &mut Resources);
+
+// trait SceneResources {
+//
+// }
+
 pub struct GameState {
     scenes: Vec<Box<dyn Scene>>,
     scaler: Arc<Mutex<ScreenScaler>>,
@@ -33,16 +50,23 @@ pub struct GameState {
 impl GameState {
     pub fn new(ctx: &mut Context) -> tetra::Result<GameState> {
         ASSET_MANAGER.with(|asset_manager| {
-            asset_manager.borrow_mut().textures = HashMap::from([
-                (
-                    crate::EntityType::Skelly,
-                    Texture::new(ctx, "./assets/sprites/skelly.png").unwrap(),
-                ),
-                (
-                    crate::EntityType::Hex,
-                    Texture::new(ctx, "./assets/sprites/hexagon.png").unwrap(),
-                ),
-            ]);
+            let mut asset_manager = asset_manager.borrow_mut();
+            *asset_manager = Some(AssetManager {
+                textures: HashMap::from([
+                    (
+                        crate::EntityType::Skelly,
+                        Texture::new(ctx, "./assets/sprites/skelly.png").unwrap(),
+                    ),
+                    (
+                        crate::EntityType::Hex,
+                        Texture::new(ctx, "./assets/sprites/hexagon.png").unwrap(),
+                    ),
+                ]),
+                shaders: Shaders {
+                    outline: Shader::from_fragment_file(ctx, "assets/shaders/outline.frag")
+                        .expect("Could not create outline shader"),
+                },
+            });
         });
 
         let camera = Arc::new(Camera::new(WIDTH as f32, HEIGHT as f32));
