@@ -1,4 +1,4 @@
-use tetra::{math::Vec2, Context};
+use tetra::Context;
 
 use crate::features::{game_state::in_game::Resources, rendering::Sprite};
 
@@ -20,12 +20,4 @@ pub fn hex_hover_system(ctx: &mut Context, resources: &mut Resources) {
         .iter()
         .filter(|&(_id, (_, cordinate_comp))| *cordinate_comp == coordinate)
         .for_each(|(_id, (sprite, _))| sprite.color.r = 0.);
-
-    // let cameras = world
-    //     .query::<&CameraComponent>()
-    //     .iter()
-    //     .map(|(_id, camera)| camera.0.clone())
-    //     .collect::<Vec<_>>();
-
-    // let camera = cameras.last().expect("No camera found");
 }

@@ -20,7 +20,7 @@ pub fn map_click_handler(
                 .query::<(&Unit, &Coordinate)>()
                 .iter()
                 .filter(|&(_id, (_, cordinate_comp))| *cordinate_comp == coordinate)
-                .map(|(id, (_, _))| id.clone())
+                .map(|(id, (_, _))| id)
                 .collect::<Vec<_>>();
 
             let unit = units.last();
@@ -33,7 +33,7 @@ pub fn map_click_handler(
             let selecteds = world
                 .query::<&Selected>()
                 .iter()
-                .map(|(id, _)| id.clone())
+                .map(|(id, _)| id)
                 .collect::<Vec<_>>();
 
             for selected in selecteds.iter() {

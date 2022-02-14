@@ -19,7 +19,7 @@ trait Scene {
         _ctx: &mut Context,
         _mouse_button: MouseButton,
         _camera: &Camera,
-    ) -> () {
+    ) {
     }
 }
 
@@ -65,8 +65,8 @@ impl GameState {
 
         Ok(GameState {
             scenes: vec![Box::new(initial_scene)],
-            scaler: scaler.clone(),
-            camera: camera.clone(),
+            scaler,
+            camera,
         })
     }
 }

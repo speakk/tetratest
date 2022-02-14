@@ -44,7 +44,7 @@ impl Sprite {
                 .get(&entity_type)
                 .expect("No texture found for sprite");
 
-            let origin_relative = origin_relative.unwrap_or(Vec2::new(0.5, 0.5));
+            let origin_relative = origin_relative.unwrap_or_else(|| Vec2::new(0.5, 0.5));
 
             Sprite {
                 entity_type,

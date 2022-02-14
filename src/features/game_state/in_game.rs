@@ -42,9 +42,9 @@ impl InGameScene {
         let mut scene = InGameScene {
             resources: Resources {
                 world: World::new(),
-                camera: camera.clone(),
+                camera,
                 last_hovered_hex: None,
-                scaler: scaler.clone(),
+                scaler,
             },
             update_systems: vec![],
             draw_systems: vec![],
@@ -58,7 +58,7 @@ impl InGameScene {
         scene.update_systems.push(hex_hover_system);
 
         for hex in scene.map.iter() {
-            scene.resources.world.spawn(create_hex_entity(hex.clone()));
+            scene.resources.world.spawn(create_hex_entity(*hex));
         }
 
         scene
@@ -88,7 +88,7 @@ impl Scene for InGameScene {
         ctx: &mut Context,
         mouse_button: tetra::input::MouseButton,
         camera: &Camera,
-    ) -> () {
+    ) {
         map_click_handler(ctx, &mut self.resources.world, mouse_button, camera);
     }
 }
