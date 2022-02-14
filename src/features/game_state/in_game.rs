@@ -8,10 +8,10 @@ use tetra::{
 
 use crate::features::{
     map::{
-        self, coordinate_to_position_system::coordinate_to_position_system,
+        self, coordinate_to_position_system::coordinate_to_position_system, create_hex_entity,
         hex_hover_system::hex_hover_system, map_click_handler::map_click_handler, Coordinate,
     },
-    rendering::{color_interpolate_system, create_hex_entity, sprite_draw_system},
+    rendering::{color_interpolate_system, sprite_draw_system},
 };
 
 use super::Scene;

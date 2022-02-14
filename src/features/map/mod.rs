@@ -1,9 +1,21 @@
 use std::cmp;
 use tetra::math::Vec2;
 
+use crate::EntityType;
+
+use super::{rendering::Sprite, shared::Position};
+
 pub mod coordinate_to_position_system;
 pub mod hex_hover_system;
 pub mod map_click_handler;
+
+pub fn create_hex_entity(coordinate: Coordinate) -> (Sprite, Position, Coordinate) {
+    (
+        Sprite::new(EntityType::Hex, Some(Vec2::new(0.5, 0.35)), None),
+        Position(Vec2::new(0., 0.)),
+        coordinate,
+    )
+}
 
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Coordinate {

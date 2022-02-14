@@ -8,15 +8,7 @@ use tetra::{
 
 use crate::{EntityType, ASSET_MANAGER};
 
-use super::{game_state::in_game::Resources, map::Coordinate, shared::Position};
-
-pub fn create_hex_entity(coordinate: Coordinate) -> (Sprite, Position, Coordinate) {
-    (
-        Sprite::new(EntityType::Hex, Some(Vec2::new(0.5, 0.35)), None),
-        Position(Vec2::new(0., 0.)),
-        coordinate,
-    )
-}
+use super::{game_state::in_game::Resources, shared::Position};
 
 #[derive(Debug)]
 pub struct Origin {
