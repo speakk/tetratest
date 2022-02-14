@@ -14,13 +14,7 @@ pub mod in_game;
 trait Scene {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
     fn draw(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
-    fn mouse_button_pressed(
-        &mut self,
-        _ctx: &mut Context,
-        _mouse_button: MouseButton,
-        _camera: &Camera,
-    ) {
-    }
+    fn mouse_button_pressed(&mut self, _ctx: &mut Context, _mouse_button: MouseButton) {}
 }
 
 #[allow(dead_code)]
@@ -126,7 +120,7 @@ impl State for GameState {
 
         if let Event::MouseButtonPressed { button } = event {
             if let Some(active_scene) = self.scenes.last_mut() {
-                active_scene.mouse_button_pressed(ctx, button, &self.camera);
+                active_scene.mouse_button_pressed(ctx, button);
             }
         }
 

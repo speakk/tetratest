@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use hecs::World;
 use tetra::{
-    graphics::{self, scaling::ScreenScaler, Camera, Color},
+    graphics::{self, scaling::ScreenScaler, Camera, Color, Shader},
     Context,
 };
 
@@ -12,6 +12,7 @@ use crate::features::{
         hex_hover_system::hex_hover_system, map_click_handler::map_click_handler, Coordinate,
     },
     rendering::{color_interpolate_system, sprite_draw_system},
+    units::create_unit_entity,
 };
 
 use super::Scene;
@@ -19,11 +20,16 @@ use super::Transition;
 
 type SystemType = fn(&mut Context, &mut Resources);
 
+pub struct Shaders {
+    pub outline: Shader,
+}
+
 pub struct Resources {
     pub world: World,
     pub camera: Arc<Camera>,
     pub scaler: Arc<Mutex<ScreenScaler>>,
     pub last_hovered_hex: Option<Coordinate>,
+    pub shaders: Shaders,
 }
 
 pub struct InGameScene {
@@ -35,16 +41,22 @@ pub struct InGameScene {
 
 impl InGameScene {
     pub fn new(
-        _: &mut Context,
+        ctx: &mut Context,
         camera: Arc<Camera>,
         scaler: Arc<Mutex<ScreenScaler>>,
     ) -> InGameScene {
+        let outline_shader = Shader::from_fragment_file(ctx, "assets/shaders/outline.frag")
+            .expect("Could not load outline shader");
+
         let mut scene = InGameScene {
             resources: Resources {
                 world: World::new(),
                 camera,
                 last_hovered_hex: None,
                 scaler,
+                shaders: Shaders {
+                    outline: outline_shader,
+                },
             },
             update_systems: vec![],
             draw_systems: vec![],
@@ -60,6 +72,13 @@ impl InGameScene {
         for hex in scene.map.iter() {
             scene.resources.world.spawn(create_hex_entity(*hex));
         }
+
+        let unit = scene.resources.world.spawn(create_unit_entity());
+        scene
+            .resources
+            .world
+            .insert_one(unit, Coordinate { q: 1, r: 3 })
+            .unwrap();
 
         scene
     }
@@ -83,12 +102,7 @@ impl Scene for InGameScene {
         Ok(Transition::None)
     }
 
-    fn mouse_button_pressed(
-        &mut self,
-        ctx: &mut Context,
-        mouse_button: tetra::input::MouseButton,
-        camera: &Camera,
-    ) {
-        map_click_handler(ctx, &mut self.resources.world, mouse_button, camera);
+    fn mouse_button_pressed(&mut self, ctx: &mut Context, mouse_button: tetra::input::MouseButton) {
+        map_click_handler(ctx, mouse_button, &mut self.resources);
     }
 }

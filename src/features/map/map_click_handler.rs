@@ -1,18 +1,19 @@
-use hecs::World;
-use tetra::{graphics::Camera, input::MouseButton, Context};
+use tetra::{input::MouseButton, Context};
 
-use crate::features::units::{Selected, Unit};
+use crate::features::{
+    game_state::in_game::Resources,
+    units::{Selected, Unit},
+};
 
 use super::{pixel_to_pointy_hex, Coordinate};
 
-pub fn map_click_handler(
-    ctx: &mut Context,
-    world: &mut World,
-    mouse_button: MouseButton,
-    camera: &Camera,
-) {
-    let pos = camera.mouse_position(ctx);
+pub fn map_click_handler(ctx: &mut Context, mouse_button: MouseButton, resources: &mut Resources) {
+    let camera = &resources.camera;
+    let scaler = &resources.scaler.lock().unwrap();
+    let pos = camera.project(scaler.mouse_position(ctx));
     let coordinate = pixel_to_pointy_hex(pos.x, pos.y);
+
+    let world = &mut resources.world;
 
     match mouse_button {
         MouseButton::Left => {

@@ -9,15 +9,19 @@ pub mod coordinate_to_position_system;
 pub mod hex_hover_system;
 pub mod map_click_handler;
 
-pub fn create_hex_entity(coordinate: Coordinate) -> (Sprite, Position, Coordinate) {
+// Marker component
+pub struct Hex;
+
+pub fn create_hex_entity(coordinate: Coordinate) -> (Sprite, Position, Coordinate, Hex) {
     (
         Sprite::new(EntityType::Hex, Some(Vec2::new(0.5, 0.35)), None),
         Position(Vec2::new(0., 0.)),
         coordinate,
+        Hex,
     )
 }
 
-#[derive(Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq, Debug)]
 pub struct Coordinate {
     pub q: i32,
     pub r: i32,
