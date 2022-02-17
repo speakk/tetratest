@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use hecs::World;
 use tetra::{
-    graphics::{self, scaling::ScreenScaler, Camera, Color, Shader},
+    graphics::{self, scaling::ScreenScaler, Camera, Color, NineSlice, Rectangle},
     Context,
 };
 
@@ -12,26 +12,22 @@ use crate::features::{
         hex_hover_system::hex_hover_system, map_click_handler::map_click_handler, Coordinate,
     },
     rendering::{color_interpolate_system, sprite_draw_system},
-    units::create_unit_entity,
 };
 
 use super::{Resources, Scene};
 use super::{SystemType, Transition};
-
-pub struct Shaders {
-    pub outline: Shader,
-}
 
 pub struct MainMenuScene {
     pub update_systems: Vec<SystemType>,
     pub draw_systems: Vec<SystemType>,
     pub map: Vec<Coordinate>,
     pub resources: Resources,
+    pub nine_slice: NineSlice,
 }
 
 impl MainMenuScene {
     pub fn new(
-        ctx: &mut Context,
+        _ctx: &mut Context,
         camera: Arc<Camera>,
         scaler: Arc<Mutex<ScreenScaler>>,
     ) -> MainMenuScene {
@@ -44,7 +40,8 @@ impl MainMenuScene {
             },
             update_systems: vec![],
             draw_systems: vec![],
-            map: map::create_grid(8, map::MapShape::Hexagonal),
+            map: map::create_grid(8, map::MapShape::Square),
+            nine_slice: NineSlice::with_border(Rectangle::new(0., 0., 32., 32.), 4.),
         };
 
         scene.draw_systems.push(sprite_draw_system);
@@ -56,13 +53,6 @@ impl MainMenuScene {
         for hex in scene.map.iter() {
             scene.resources.world.spawn(create_hex_entity(*hex));
         }
-
-        let unit = scene.resources.world.spawn(create_unit_entity());
-        scene
-            .resources
-            .world
-            .insert_one(unit, Coordinate { q: 1, r: 3 })
-            .unwrap();
 
         scene
     }

@@ -79,7 +79,7 @@ impl GameState {
             )
             .unwrap(),
         ));
-        let initial_scene = in_game::InGameScene::new(ctx, camera.clone(), scaler.clone());
+        let initial_scene = main_menu::MainMenuScene::new(ctx, camera.clone(), scaler.clone());
 
         Ok(GameState {
             scenes: vec![Box::new(initial_scene)],
