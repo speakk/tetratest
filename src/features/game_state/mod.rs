@@ -2,7 +2,7 @@ use hecs::World;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
-use tetra::graphics::{self, Camera, Color, Shader, Texture};
+use tetra::graphics::{self, Camera, Color, NineSlice, Shader, Texture};
 use tetra::input::MouseButton;
 //use tetra::math::Vec2;
 use tetra::window;
@@ -28,12 +28,22 @@ enum Transition {
     Pop,
 }
 
+// pub trait ResourcesLike {
+//     fn get_world(&self) -> World;
+//     fn get_camera(&self) -> Arc<Camera>;
+//     fn scaler(&self) -> Arc<Mutex<ScreenScaler>>;
+//     fn last_hovered_hex(&self) -> Option<Coordinate>;
+// }
+
 pub struct Resources {
     pub world: World,
     pub camera: Arc<Camera>,
     pub scaler: Arc<Mutex<ScreenScaler>>,
     pub last_hovered_hex: Option<Coordinate>,
+    pub nine_slice: NineSlice,
 }
+
+//impl ResourcesLike for Resources {}
 
 pub type SystemType = fn(&mut Context, &mut Resources);
 
@@ -60,6 +70,10 @@ impl GameState {
                     (
                         crate::EntityType::Hex,
                         Texture::new(ctx, "./assets/sprites/hexagon.png").unwrap(),
+                    ),
+                    (
+                        crate::EntityType::Panel,
+                        Texture::new(ctx, "./assets/ui/panel1.png").unwrap(),
                     ),
                 ]),
                 shaders: Shaders {

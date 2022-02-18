@@ -36,6 +36,7 @@ thread_local!(pub static ASSET_MANAGER: Rc<RefCell<Option<AssetManager>>> = Rc::
 pub enum EntityType {
     Skelly,
     Hex,
+    Panel, // TODO: Meh
 }
 
 fn main() -> tetra::Result {

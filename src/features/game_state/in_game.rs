@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use hecs::World;
 use tetra::{
-    graphics::{self, scaling::ScreenScaler, Camera, Color, Shader},
+    graphics::{self, scaling::ScreenScaler, Camera, Color, NineSlice, Rectangle, Shader},
     Context,
 };
 
@@ -44,6 +44,7 @@ impl InGameScene {
                 camera,
                 last_hovered_hex: None,
                 scaler,
+                nine_slice: NineSlice::with_border(Rectangle::new(0., 0., 32., 32.), 4.),
             },
             update_systems: vec![],
             draw_systems: vec![],
