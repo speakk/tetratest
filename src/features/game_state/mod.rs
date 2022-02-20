@@ -1,19 +1,15 @@
-use hecs::World;
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tetra::graphics::scaling::{ScalingMode, ScreenScaler};
-use tetra::graphics::{self, Camera, Color, NineSlice, Shader, Texture};
+use tetra::graphics::{self, Camera, Color};
 use tetra::input::MouseButton;
 //use tetra::math::Vec2;
 use tetra::window;
 use tetra::{Context, Event, State};
 
-use crate::{AssetManager, Shaders, ASSET_MANAGER, HEIGHT, WIDTH};
-
-use super::map::Coordinate;
+use crate::{HEIGHT, WIDTH};
 
 pub mod in_game;
-pub mod main_menu;
+//pub mod main_menu;
 
 trait Scene {
     fn update(&mut self, ctx: &mut Context) -> tetra::Result<Transition>;
@@ -35,17 +31,17 @@ enum Transition {
 //     fn last_hovered_hex(&self) -> Option<Coordinate>;
 // }
 
-pub struct Resources {
-    pub world: World,
-    pub camera: Arc<Camera>,
-    pub scaler: Arc<Mutex<ScreenScaler>>,
-    pub last_hovered_hex: Option<Coordinate>,
-    pub nine_slice: NineSlice,
-}
+// pub struct Resources {
+//     pub world: World,
+//     pub camera: Arc<Camera>,
+//     pub scaler: Arc<Mutex<ScreenScaler>>,
+//     pub last_hovered_hex: Option<Coordinate>,
+//     pub nine_slice: NineSlice,
+// }
 
 //impl ResourcesLike for Resources {}
 
-pub type SystemType = fn(&mut Context, &mut Resources);
+//pub type SystemType = fn(&mut Context, &mut Resources);
 
 // trait SceneResources {
 //
@@ -59,29 +55,29 @@ pub struct GameState {
 
 impl GameState {
     pub fn new(ctx: &mut Context) -> tetra::Result<GameState> {
-        ASSET_MANAGER.with(|asset_manager| {
-            let mut asset_manager = asset_manager.borrow_mut();
-            *asset_manager = Some(AssetManager {
-                textures: HashMap::from([
-                    (
-                        crate::EntityType::Skelly,
-                        Texture::new(ctx, "./assets/sprites/skelly.png").unwrap(),
-                    ),
-                    (
-                        crate::EntityType::Hex,
-                        Texture::new(ctx, "./assets/sprites/hexagon.png").unwrap(),
-                    ),
-                    (
-                        crate::EntityType::Panel,
-                        Texture::new(ctx, "./assets/ui/panel1.png").unwrap(),
-                    ),
-                ]),
-                shaders: Shaders {
-                    outline: Shader::from_fragment_file(ctx, "assets/shaders/outline.frag")
-                        .expect("Could not create outline shader"),
-                },
-            });
-        });
+        // ASSET_MANAGER.with(|asset_manager| {
+        //     let mut asset_manager = asset_manager.borrow_mut();
+        //     *asset_manager = Some(AssetManager {
+        //         textures: HashMap::from([
+        //             (
+        //                 crate::EntityType::Skelly,
+        //                 Texture::new(ctx, "./assets/sprites/skelly.png").unwrap(),
+        //             ),
+        //             (
+        //                 crate::EntityType::Hex,
+        //                 Texture::new(ctx, "./assets/sprites/hexagon.png").unwrap(),
+        //             ),
+        //             (
+        //                 crate::EntityType::Panel,
+        //                 Texture::new(ctx, "./assets/ui/panel1.png").unwrap(),
+        //             ),
+        //         ]),
+        //         shaders: Shaders {
+        //             outline: Shader::from_fragment_file(ctx, "assets/shaders/outline.frag")
+        //                 .expect("Could not create outline shader"),
+        //         },
+        //     });
+        // });
 
         let camera = Arc::new(Camera::new(WIDTH as f32, HEIGHT as f32));
         let scaler = Arc::new(Mutex::new(
@@ -93,7 +89,7 @@ impl GameState {
             )
             .unwrap(),
         ));
-        let initial_scene = main_menu::MainMenuScene::new(ctx, camera.clone(), scaler.clone());
+        let initial_scene = in_game::InGameScene::new(ctx, camera.clone(), scaler.clone());
 
         Ok(GameState {
             scenes: vec![Box::new(initial_scene)],

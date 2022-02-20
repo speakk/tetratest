@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::collections::HashMap;
 
 use features::game_state::GameState;
 use tetra::{
@@ -22,15 +22,16 @@ pub struct AssetManager {
     pub shaders: Shaders,
 }
 
-thread_local!(pub static ASSET_MANAGER: Rc<RefCell<Option<AssetManager>>> = Rc::new(RefCell::new(None)));
-/*AssetManager {
+// thread_local!(pub static ASSET_MANAGER: Rc<RefCell<Option<AssetManager>>> = Rc::new(RefCell::new(None)));
+// /*AssetManager {
 
-    textures: HashMap::new(),
-    shaders: Shaders {
-        outline: Shader::default().unwrap()
-    }
-}));
-*/
+//     textures: HashMap::new(),
+//     shaders: Shaders {
+//         outline: Shader::default().unwrap()
+//     }
+// }));
+// */
+pub type Textures = HashMap<EntityType, Texture>;
 
 #[derive(Hash, Eq, PartialEq)]
 pub enum EntityType {

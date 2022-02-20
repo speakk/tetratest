@@ -1,9 +1,6 @@
 use tetra::{input::MouseButton, Context};
 
-use crate::features::{
-    game_state::Resources,
-    units::{Selected, Unit},
-};
+use crate::features::units::{Selected, Unit};
 
 use super::{pixel_to_pointy_hex, Coordinate};
 

@@ -1,10 +1,14 @@
+use bevy_ecs::prelude::Component;
 use tetra::math::Vec2;
 
 use crate::EntityType;
 
 use super::{rendering::Sprite, shared::Position};
 
+#[derive(Component)]
 pub struct Unit;
+
+#[derive(Component)]
 pub struct Selected;
 
 pub fn create_unit_entity() -> (Sprite, Position, Unit) {
