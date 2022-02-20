@@ -63,8 +63,6 @@ impl InGameScene {
         //     //map: map::create_grid(8, map::MapShape::Hexagonal),
         // };
 
-        //let map = map::create_grid(8, map::MapShape::Hexagonal);
-
         const DRAW_STAGE: &str = "draw";
         const UPDATE_STAGE: &str = "update";
 
@@ -79,6 +77,12 @@ impl InGameScene {
         world.insert_non_send(Shaders {
             outline: outline_shader,
         });
+
+        let map = map::create_grid(8, map::MapShape::Hexagonal);
+        for hex in map.iter() {
+            //scene.resources.world.spawn(create_hex_entity(*hex));
+            //world.spawn().insert(
+        }
 
         // let mut hmm = scene
         //     .draw_schedule
